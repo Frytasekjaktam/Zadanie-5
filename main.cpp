@@ -1,9 +1,11 @@
 #include <iostream>
 #include <algorithm>
 #include <fstream>
+#include <time.h>
 
 using namespace std;
-
+clock_t start, stop;
+double czas;
 int ile = 0;
 const string fileName = "output.txt"; // nazwa pliku do odczytu, ktory wygeneruje program
 
@@ -46,19 +48,19 @@ void calcProduct( int tab[], int ile )
     ofstream file; //zmienna plik
     file.open (fileName); //otwiera plik
 
-    int  counter = 0;  //zmienna licznik ktora wykorzystana bedzie do petli sprawdzajacej i zamieniajacej wartosc maksymalna z tablicy 
+    int  counter = 0;  //zmienna licznik ktora wykorzystana bedzie do petli sprawdzajacej i zamieniajacej wartosc maksymalna z tablicy
     int* Iloczyny = new int [ile - 1]; //tworzymy tablice iloczynow
     Iloczyny[0] = tab[0] * tab[1];
 
-    file << "\n\nIloczyny\n\n";
+    // file << "\n\nIloczyny\n\n";
 
     for(int i=0; i<ile-1; i++) //petla wypisujaca iloczyny dwoch sasiednich liczb (wczesniej posortowanych)
     {
         Iloczyny[i] = tab[i] * tab[i+1];
-           file << i+1 << ". " << Iloczyny[i] << endl;
+        //   file << i+1 << ". " << Iloczyny[i] << endl;
         counter += 1;
     }
-    
+
     int maks = Iloczyny[0];
 
 for(int j=0; j<counter; j++) //petla przechodzaca przez kolejne iloczyny, jezeli napotka wiekszy iloczyn to zamienia go do zmiennej maks
@@ -70,7 +72,7 @@ for(int j=0; j<counter; j++) //petla przechodzaca przez kolejne iloczyny, jezeli
     }
     file << "\nNajwiekszy iloraz: " << maks << endl;
     file << "Czynniki generujace maksymalny iloczyn to pary: ";
-    
+
     for( int i=0; i< ile - 1; i++ )  //petla wypisuje pary liczb
     {
         if( tab[i] * tab[i+1] == maks )
@@ -79,17 +81,26 @@ for(int j=0; j<counter; j++) //petla przechodzaca przez kolejne iloczyny, jezeli
         }
     }
     file << "\n";
+    file.close(); // zamykamy plik
+}
+//FUNKCJA KTORA TWORZY TABLICE O PODANYM ROZMIARZE I ELEMENTACH Z ZAKRESU -99 DO 99
+int *randTab(){
+    cout<< "Wygenerowane liczby beda z zakresu (-99, 99)\n";
+    cout << "Podaj ile elementow ma zawierac tablica: ";
+    cin >> ile;
+    cout << "Trwa obliczenie..." << endl;
+    start = clock();
+    int *tab = new int[ile];
+    for(int i=0 ; i<ile ; i++){
+        tab[i] = rand()%199-99;
+    }
+    sort(tab, tab + ile);
+    return tab;
 }
 
-
-// FUNKCJA GLOWNA
-int main()
+void printFile()
 {
-    int* tablica = stworzTablice(); // tworzymy tablice dynamiczna na podstawie wprowadzonych danych i przy okazji sortujemy je w kolejnosci rosnacej
-    calcProduct( tablica, ile ); //odwolujemy sie do funkcji z dwoma argumentami
-    delete [] tablica; //zwalniamy pamiec usuwajac tablice dynamiczna 
-
-// WYPISYWANIE PLIKU NA EKRAN
+    // WYPISYWANIE PLIKU NA EKRAN
     ifstream outcome(fileName); // wypisuje dane na ekran, jesli nastapi blad to wyswietli stosowny komunikat
 
     if ( outcome.is_open() )
@@ -100,6 +111,46 @@ int main()
     else
     {
         cout << "Blad przy otwieraniu pliku: " << fileName;
+    }
+}
+
+// FUNKCJA GLOWNA
+int main()
+{
+    cout << "1. Wprowadz dane" << endl;
+    cout << "2. Wylosuj dane"  << endl;
+    int wybor;
+    cin>>wybor;
+    system("cls");
+    switch(wybor)
+    {
+        case 1:
+            {
+            int* tablica = stworzTablice(); // tworzymy tablice dynamiczna na podstawie wprowadzonych danych i przy okazji sortujemy je w kolejnosci rosnacej
+            //for (int i=0; i<ile; i++)
+            //  cout<<"1. "<<tablica[i]<<endl;
+
+            calcProduct( tablica, ile ); //odwolujemy sie do funkcji z dwoma argumentami
+            delete [] tablica; //zwalniamy pamiec usuwajac tablice dynamiczna
+            printFile();
+            break;
+            }
+
+        case 2:
+            {
+            int *tabs = randTab();
+            calcProduct ( tabs, ile);
+            // for (int i=0; i<ile; i++)
+            //    cout<<i+1<<". "<<tabs[i]<<endl;
+            delete [] tabs;
+            printFile();
+            stop = clock();
+            czas = (double)(stop - start) / CLOCKS_PER_SEC;
+            cout << "\nCzas: " << czas << "s. ";
+            break;
+            }
+        default:
+            cout<<"Nieprawidlowy wybor!";
     }
 
     return 0;
