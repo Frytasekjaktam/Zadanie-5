@@ -2,6 +2,7 @@
 #include <algorithm>
 #include <fstream>
 #include <time.h>
+#include <stdlib.h>
 
 using namespace std;
 clock_t start, stop;
@@ -16,7 +17,7 @@ int *stworzTablice()
      cin >> ile;
     while(cin.fail() || ile <= 1) //petla ktora sprawdza czy wprowadzone dane sa liczbami wiekszymi lub rownymi jeden
     {
-       cout << "Niepoprawna wartosc " << endl;
+       cout << "Niepoprawna wartosc: ";
         cin.clear(); // czysci flage bledu
         cin.ignore(100,'\n'); //ignoruje niepoprawne dane czyli max 100 znakow az do spotkanie nowej linii
         cin >> ile;
@@ -30,7 +31,7 @@ int *stworzTablice()
          cin >> tab[i];
         while( cin.fail() )  // petla ktora rowniez sprawdza poprawnosc wprowadzonych danych (tylko czy jest liczba)
         {
-            cout << "Wprowadz poprawna wartosc." << endl;
+            cout << "Wprowadz poprawna wartosc (liczbe calkowita): ";
              cin.clear();
              cin.ignore(100,'\n');
              cin >> tab[i];
@@ -48,22 +49,18 @@ void calcProduct( int tab[], int ile )
     ofstream file; //zmienna plik
     file.open (fileName); //otwiera plik
 
-    int  counter = 0;  //zmienna licznik ktora wykorzystana bedzie do petli sprawdzajacej i zamieniajacej wartosc maksymalna z tablicy
     int* Iloczyny = new int [ile - 1]; //tworzymy tablice iloczynow
-    Iloczyny[0] = tab[0] * tab[1];
-
     // file << "\n\nIloczyny\n\n";
 
     for(int i=0; i<ile-1; i++) //petla wypisujaca iloczyny dwoch sasiednich liczb (wczesniej posortowanych)
     {
         Iloczyny[i] = tab[i] * tab[i+1];
-        //   file << i+1 << ". " << Iloczyny[i] << endl;
-        counter += 1;
+     //      file << i+1 << ". " << Iloczyny[i] << endl;
     }
 
     int maks = Iloczyny[0];
 
-for(int j=0; j<counter; j++) //petla przechodzaca przez kolejne iloczyny, jezeli napotka wiekszy iloczyn to zamienia go do zmiennej maks
+for(int j=0; j<ile - 2; j++) //petla przechodzaca przez kolejne iloczyny, jezeli napotka wiekszy iloczyn to zamienia go do zmiennej maks
     {
         if( Iloczyny[j+1] > Iloczyny[j] )
         {
@@ -88,6 +85,13 @@ int *randTab(){
     cout<< "Wygenerowane liczby beda z zakresu (-99, 99)\n";
     cout << "Podaj ile elementow ma zawierac tablica: ";
     cin >> ile;
+        while( cin.fail() )
+    {
+        cout << "Wprowadz poprawna wartosc (liczbe calkowita): ";
+        cin.clear();
+        cin.ignore(100,'\n');
+        cin >> ile;
+    }
     cout << "Trwa obliczenie..." << endl;
     start = clock();
     int *tab = new int[ile];
@@ -121,7 +125,8 @@ int main()
     cout << "2. Wylosuj dane"  << endl;
     int wybor;
     cin>>wybor;
-    system("cls");
+    system("cls"); // wyczyszczenie ekranu
+    srand(time(NULL)); //funkcja ktora ustawia losowy punkt generowania danych za pomoca funkcji time zwraca liczbe okreslajaca czas
     switch(wybor)
     {
         case 1:
@@ -140,11 +145,13 @@ int main()
             {
             int *tabs = randTab();
             calcProduct ( tabs, ile);
+            // skomentowane zostalo wypisywanie wszystkich wygenerowanych liczb w kolejnosci rosnacej
             // for (int i=0; i<ile; i++)
             //    cout<<i+1<<". "<<tabs[i]<<endl;
             delete [] tabs;
-            printFile();
             stop = clock();
+            printFile();
+
             czas = (double)(stop - start) / CLOCKS_PER_SEC;
             cout << "\nCzas: " << czas << "s. ";
             break;
